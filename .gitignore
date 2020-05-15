@@ -1,0 +1,7 @@
+fyne.syso
+*.exe
+*.so
+/release
+pkg
+debug
+*.dll
