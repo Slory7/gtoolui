@@ -43,8 +43,6 @@ func (p *Home) UILayout(win fyne.Window) *fyne.Container {
 		lsliderScale.Text = fmt.Sprintf(ssacle, p.imageScale)
 		lsliderScale.Refresh()
 	}
-	//sliderScale.Resize(fyne.NewSize(200, 50))
-	//rowScale := widget.NewHBox(lsliderScale, sliderScale)
 
 	btnConvert := widget.NewButtonWithIcon("转换", theme.SearchReplaceIcon(), p.convertPDF)
 

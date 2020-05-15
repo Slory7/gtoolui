@@ -68,75 +68,75 @@ func (p *Home) showPDFFileOpen() {
 }
 
 func (p *Home) convertPDF() {
-	if p.pdfFile != "" {
-		bytesPDF, err := ioutil.ReadFile(p.pdfFile)
-		if err != nil {
-			ui.ShowError(err, p.win)
-		} else {
-			p.pdfIsConverting <- true
+	if p.pdfFile == "" {
+		return
+	}
+	bytesPDF, err := ioutil.ReadFile(p.pdfFile)
+	if err != nil {
+		ui.ShowError(err, p.win)
+		return
+	}
+	p.pdfIsConverting <- true
 
-			pdfium.InitLibrary()
-			d, err := pdfium.NewDocument(&bytesPDF)
-			if err != nil {
-				ui.ShowError(err, p.win)
-			} else {
-				ext := filepath.Ext(p.pdfFile)
-				imgfileFormat := strings.TrimRight(p.pdfFile, ext) + "_%d." + p.imageFormat
-				pagecount := d.GetPageCount()
-				convertedCount := 0
-				if p.pageRange != "" {
-					if strings.Contains(p.pageRange, ",") {
-						for _, pg := range strings.Split(p.pageRange, ",") {
-							if pgnum, _ := strconv.Atoi(pg); pgnum > 0 {
-								if pgnum > pagecount {
-									pgnum = pagecount
-								}
-								renderPDFPageToImageFile(d, fmt.Sprintf(imgfileFormat, pgnum), pgnum-1, p.imageScale)
-								convertedCount++
-							}
-						}
-					} else if strings.Contains(p.pageRange, "-") {
-						arr := strings.Split(p.pageRange, "-")
-						from, _ := strconv.Atoi(arr[0])
-						to, _ := strconv.Atoi(arr[1])
-						if to == 0 {
-							to = pagecount
-						}
-						if from <= to {
-							if from > pagecount {
-								from = pagecount
-							}
-							if to > pagecount {
-								to = pagecount
-							}
-							for n := from; n <= to; n++ {
-								renderPDFPageToImageFile(d, fmt.Sprintf(imgfileFormat, n), n-1, p.imageScale)
-								convertedCount++
-							}
-						}
-					} else {
-						if pgnum, _ := strconv.Atoi(p.pageRange); pgnum > 0 {
-							if pgnum > pagecount {
-								pgnum = pagecount
-							}
-							renderPDFPageToImageFile(d, fmt.Sprintf(imgfileFormat, pgnum), pgnum-1, p.imageScale)
-							convertedCount++
-						}
-					}
-				} else {
-					for n := 0; n < pagecount; n++ {
-						renderPDFPageToImageFile(d, fmt.Sprintf(imgfileFormat, n+1), n, p.imageScale)
-						convertedCount++
-					}
+	pdfium.InitLibrary()
+	d, err := pdfium.NewDocument(&bytesPDF)
+	if err != nil {
+		ui.ShowError(err, p.win)
+		return
+	}
+	ext := filepath.Ext(p.pdfFile)
+	imgfileFormat := strings.TrimRight(p.pdfFile, ext) + "_%d." + p.imageFormat
+	pagecount := d.GetPageCount()
+	convertedCount := 0
+	if p.pageRange == "" {
+		for n := 0; n < pagecount; n++ {
+			renderPDFPageToImageFile(d, fmt.Sprintf(imgfileFormat, n+1), n, p.imageScale)
+			convertedCount++
+		}
+	} else if strings.Contains(p.pageRange, ",") {
+		for _, pg := range strings.Split(p.pageRange, ",") {
+			if pgnum, _ := strconv.Atoi(pg); pgnum > 0 {
+				if pgnum > pagecount {
+					pgnum = pagecount
 				}
-				d.Close()
-				ui.ShowInformation("操作完成", fmt.Sprintf("转换了%d页", convertedCount), p.win)
+				renderPDFPageToImageFile(d, fmt.Sprintf(imgfileFormat, pgnum), pgnum-1, p.imageScale)
+				convertedCount++
 			}
-			pdfium.DestroyLibrary()
-
-			p.pdfIsConverting <- false
+		}
+	} else if strings.Contains(p.pageRange, "-") {
+		arr := strings.Split(p.pageRange, "-")
+		from, _ := strconv.Atoi(arr[0])
+		to, _ := strconv.Atoi(arr[1])
+		if to == 0 {
+			to = pagecount
+		}
+		if from <= to {
+			if from > pagecount {
+				from = pagecount
+			}
+			if to > pagecount {
+				to = pagecount
+			}
+			for n := from; n <= to; n++ {
+				renderPDFPageToImageFile(d, fmt.Sprintf(imgfileFormat, n), n-1, p.imageScale)
+				convertedCount++
+			}
+		}
+	} else if p.pageRange != "" {
+		if pgnum, _ := strconv.Atoi(p.pageRange); pgnum > 0 {
+			if pgnum > pagecount {
+				pgnum = pagecount
+			}
+			renderPDFPageToImageFile(d, fmt.Sprintf(imgfileFormat, pgnum), pgnum-1, p.imageScale)
+			convertedCount++
 		}
 	}
+	d.Close()
+	pdfium.DestroyLibrary()
+
+	ui.ShowInformation("操作完成", fmt.Sprintf("转换了%d页", convertedCount), p.win)
+
+	p.pdfIsConverting <- false
 }
 
 func renderPDFPageToImageFile(d *pdfium.Document, imageFile string, pageIndex int, scale int) (err error) {
