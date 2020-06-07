@@ -10,8 +10,9 @@
     "tasks": [
         {
             "label": "build",
-            "command": "go build",
+            "command": "go",
             "args": [
+                "build",
                 "-x"
             ],
             "group": {
@@ -27,8 +28,9 @@
         },
         {
             "label": "publish",
-            "command": "fyne package",
+            "command": "fyne",
             "args": [
+                "package",
                 "-release",
                 "-name",
                 "${workspaceFolderBasename}"

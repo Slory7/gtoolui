@@ -33,6 +33,7 @@ func (p *Home) UILayout(win fyne.Window) *fyne.Container {
 	})
 	selectFormat.Selected = p.imageFormat
 	rowFormat := widget.NewHBox(lselectFormat, selectFormat)
+
 	ssacle := "缩放比例 %d%%"
 	lsliderScale := widget.NewLabel(fmt.Sprintf(ssacle, p.imageScale))
 	sliderScale := widget.NewSlider(1, 400)
@@ -59,8 +60,7 @@ func (p *Home) UILayout(win fyne.Window) *fyne.Container {
 
 	go func() {
 		for {
-			txtFile.Text = <-p.pdfFileNameChanged
-			txtFile.Refresh()
+			txtFile.SetText(<-p.pdfFileNameChanged)
 		}
 	}()
 	go func() {

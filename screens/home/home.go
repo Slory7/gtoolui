@@ -64,7 +64,7 @@ func (p *Home) showPDFFileOpen() {
 			p.pdfFolder = filepath.Dir(p.pdfFile)
 			p.win.SetTitle(p.pdfFile)
 		}
-	})
+	}, []string{".pdf"})
 }
 
 func (p *Home) convertPDF() {

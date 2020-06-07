@@ -26,7 +26,7 @@ func main() {
 	h := home.NewHome()
 	w.SetContent(h.UILayout(w))
 
-	w.Resize(fyne.NewSize(850, 650))
+	w.Resize(fyne.NewSize(550, 400))
 	w.SetFixedSize(true)
 	w.CenterOnScreen()
 	w.SetMaster()
